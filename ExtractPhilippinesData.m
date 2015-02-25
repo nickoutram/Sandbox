@@ -81,16 +81,10 @@ end
 
 UnsampledMatrix(:,4) = UnsampledMatrix(:,5) .* UnsampledMatrix(:,6); % estimate abundance for unsampled reefs
 
-% J O I N   M A T R I C E S
-Reefs = vertcat(Reefs, UnsampledMatrix);
-
-% G E N E R A T E   D I S T A N C E   M A T R I X
-D = squareform(pdist(Reefs(:,[3 2]))) ./ 1000;
-
 % G E N E R A T E   P A R E N T A G E   M A T R I X
 S = [1:N; hist(JD(:,1),1:N)]; maxS = max(S(2,:)); % calculate parentage matrix dimensions
-%ParentageMatrix = repmat(-1, NSR, maxS); % If we're including the unsampled reefs, set these values automatically to -1
-ParentageMatrix = repmat(nan, NSR, maxS); % If we're NOT including the unsampled reefs, set these values automatically to NAN
+ParentageMatrix = repmat(-1, NSR, maxS); % If we're including the unsampled reefs, set these values automatically to -1
+%ParentageMatrix = repmat(nan, NSR, maxS); % If we're NOT including the unsampled reefs, set these values automatically to NAN
 
 sample = int64(JD(:,[1 5])); % format sample list
 sn = sum(S(2,:)); % number of samples
@@ -100,41 +94,43 @@ for i = 1:sn % loop over all samples
    
     % if move onto a new reef, start again from 1st column
     if currentReef ~= sample(i,1)
-        ParentageMatrix(currentReef, j:end) = NaN;
+        ParentageMatrix(currentReef, j:end) = NaN; % rest of row is nan (no samples)
         j = 1;
     end
     
     % if parent reef is known, include in parentage matrix
     if sample(i,2)
         ParentageMatrix(currentReef, j) = sample(i,2);
-    else
-        %ParentageMatrix(currentReef,j) = -1;
     end
-    
-    % problem: how do we distinguish between unknown sample and an empty
-    % data space? ( zeros == no data / -1 == unknown )
-    
-    j = j + 1;
-    currentReef = sample(i,1);
-    
+        
+    j = j + 1; currentReef = sample(i,1);
 end 
 
 ParentageMatrix([23 25],:) = NaN; % no samples from reef 23 or 25
-ParentageMatrix(currentReef, j:end) = NaN; % rest ofs final reef sample.
+ParentageMatrix(currentReef, j:end) = NaN; % rest of final reef sample
+% ( nan == no data / -1 == unknown )
+
+% M O D I F Y   F O R   A D U L T   S A M P L I N G   P R O P O R T I O N
+ArtificialReefs_Adults = Reefs; % this could change for future data e.g. sample different reefs for adults / juveniles
+SampledProp_Adults = ones(length(ArtificialReefs_Adults),1) .* .2; % this could be extracted from the data
+
+if sum(SampledProp_Adults) > 0
+    ArtificialReefs_Adults(:,5) = ArtificialReefs_Adults(:,5) .* (1 - SampledProp_Adults);
+    Reefs(:,5) = Reefs(:,5) .* SampledProp_Adults;
+    
+% J O I N   M A T R I C E S
+
+    AllReefs = vertcat(Reefs,UnsampledMatrix,ArtificialReefs_Adults);
+else
+    AllReefs = vertcat(Reefs, UnsampledMatrix);
+end
 
 % F O R M A T   A D D I T I O N A L   T H I N G S
-reef_size = Reefs(:,5) ./ 1000000;
-% PROBLEM: need to convert to km^2
+reef_size = AllReefs(:,5) ./ 1000000; % convert area to km^2
+Pop_dens = AllReefs(:,6);
 
-Pop_dens = Reefs(:,6);
-
-% PROBLEM: are Pop_dens & reef_size in the correct units?
+% G E N E R A T E   D I S T A N C E   M A T R I X
+D = squareform(pdist(AllReefs(:,[3 2]))) ./ 1000; % and convert to km
 
 % S A V E   T O   F I L E
-
-% ParentageMatrix = ParentageMatrix(1:26,:);
-% D = D(1:26,1:26);
-% reef_size = reef_size(1:26);
-% Pop_dens = Pop_dens(1:26);
-
 save philippinesData.mat ParentageMatrix D reef_size Pop_dens

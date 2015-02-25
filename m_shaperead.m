@@ -137,7 +137,6 @@ else
        end; 
     end;
   end;  
-  fprintf('\n');
   fclose(fidl);
 end;
 
@@ -299,7 +298,7 @@ for k=1:lrec,
 	 for k2=1:length(parts)-1,
            ncst([parts(k2)+1:parts(k2+1)]+(k2-1),1:2)=pts([parts(k2)+1:parts(k2+1)],:);
            ncst([parts(k2)+1:parts(k2+1)]+(k2-1),3)=ptsZ([parts(k2)+1:parts(k2+1)] );
-	 end;
+     end
 	 if size(M.mbr,2)==4, M.mbr=NaN(size(M.mbr,1),6); end;	
 	 M.mbr(k,:)=[mbr mbrZ];	
 	 M.ncst{k,1}=ncst;
@@ -326,7 +325,7 @@ for k=1:lrec,
 
        
     otherwise
-      disp(['Unknown record type: ' int2str(stype)])
+      disp(['Unknown record type: ' int2str(stype)]);
   end;
 end;
 fclose(fidl);

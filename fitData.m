@@ -18,6 +18,8 @@ for k = 1:length(KVec)
         SampledReefs_Juveniles,SampleSize_Juveniles,NonSampledSet_Adults,ParentageMatrix);
 end
 
+keyboard
+
 figure(1), clf, subplot(2,1,1), hold on
 plot(KVec,LL_CrossSection)
 [~, INDEX] = min(LL_CrossSection);

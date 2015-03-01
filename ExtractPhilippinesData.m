@@ -112,10 +112,11 @@ ParentageMatrix(currentReef, j:end) = NaN; % rest of final reef sample
 
 % M O D I F Y   F O R   A D U L T   S A M P L I N G   P R O P O R T I O N
 ArtificialReefs_Adults = Reefs; % this could change for future data e.g. sample different reefs for adults / juveniles
-SampledProp_Adults = ones(length(ArtificialReefs_Adults),1) .* .2; % this could be extracted from the data
+SampledProp_Adults = [.24 .08 .14 .22 .27 .26 .27 .2 .13 .09 .19 .9 .15 .39 .07 .03 .24 .13 .35 .08 .14 .05 0 0 0 .23];
+SampledProp_Adults = transpose(SampledProp_Adults);% this could be extracted from the data
 
-if sum(SampledProp_Adults) > 0
-    ArtificialReefs_Adults(:,5) = ArtificialReefs_Adults(:,5) .* (1 - SampledProp_Adults);
+if min(SampledProp_Adults) < 1
+    ArtificialReefs_Adults(:,5) = ArtificialReefs_Adults(:,5) .* 1 - SampledProp_Adults;
     Reefs(:,5) = Reefs(:,5) .* SampledProp_Adults;
     
 % J O I N   M A T R I C E S

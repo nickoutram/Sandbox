@@ -25,6 +25,7 @@ plot(KVec,LL_CrossSection)
 [~, INDEX] = min(LL_CrossSection);
 plot(KVec(INDEX), LL_CrossSection(INDEX), 'ro')
 xlabel('-log(K)'); ylabel('log likelihood (LL)');
+disp(KVec(INDEX));
 
 subplot(2,1,2)
 X = linspace(0,200,1000);
@@ -68,6 +69,7 @@ L = repmat(Pop_dens.*reef_size,1,NumReefs).*C;
  
 % Normalise the recruits (we're interested in proportions)
 Prop = L./repmat(sum(L),NumReefs,1); % At each reef, this is the proportion of recruits from each reef
+keyboard
  
 % If we didn't sample all reefs for adults, we have to worry about juveniles who can't be assigned to a source reef
 L_mat = ones(length(SampledReefs_Juveniles),SampleSize_Juveniles);
